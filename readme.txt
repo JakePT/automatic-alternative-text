@@ -16,6 +16,7 @@ The Computer Vision API’s algorithms analyze the content found in an image and
 
 == Installation ==
 The two methods of installing the plugin are:
+
 1. Search for "Automatic Alternative Text" in Plugins > Add New and click the Install button.
 2. Unzip the archive and put the `automatic-alt-text` folder into your site's `/wp-content/plugins/` folder.
 

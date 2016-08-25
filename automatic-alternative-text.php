@@ -2,7 +2,7 @@
 /*
 Plugin Name: Automatic Alternative Text
 Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
-Version: 1.0
+Version: 1.0.1
 Author: Jacob Peattie
 Author URI: https://profiles.wordpress.org/jakept
 License: GPLv2 or later
@@ -87,7 +87,7 @@ function aat_register_settings() {
 	register_setting( 'media', 'aat_api_key', 'sanitize_text_field' );
 	add_settings_field( 'eat-api-key', __( 'API Key', 'automatic-alternative-text' ), 'aat_api_key_field', 'media', 'eat-settings', array( 'label_for' => 'aat_api_key' ) );
 	register_setting( 'media', 'aat_confidence', 'aat_sanitize_confidence' );
-	add_settings_field( 'eat-confidence', __( 'Condifence threshold', 'automatic-alternative-text' ), 'aat_confidence_field', 'media', 'eat-settings', array( 'label_for' => 'aat_confidence' ) );
+	add_settings_field( 'eat-confidence', __( 'Confidence threshold', 'automatic-alternative-text' ), 'aat_confidence_field', 'media', 'eat-settings', array( 'label_for' => 'aat_confidence' ) );
 }
 add_action( 'admin_init', 'aat_register_settings' );
 
@@ -219,7 +219,7 @@ function aat_get_caption( $attachment_id ) {
 	/* Get confidence threshold as a float. */
 	$confidence = get_option( 'aat_confidence' ) / 100;
 
-	/* Return the caption if valid and meets condifence threshold. */
+	/* Return the caption if valid and meets confidence threshold. */
 	if ( isset( $caption['text'] ) && isset( $caption['confidence'] ) && $caption['confidence'] > $confidence ) {
 		return sanitize_text_field( ucfirst( $caption['text'] ) );
 	} else {

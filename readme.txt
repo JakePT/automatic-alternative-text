@@ -5,7 +5,7 @@ Requires at least: 4.4
 Tested up to: 4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.0
+Stable tag: 1.0.1
 
 Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
 
@@ -45,6 +45,9 @@ Not yet. I might add this functionality in a future version.
 3. An uploaded image with automatic alt text added.
 
 == Changelog ==
+
+= 1.0.1 =
+* Fixed typo in settings.
 
 = 1.0 =
 * First release.

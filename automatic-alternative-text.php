@@ -2,13 +2,13 @@
 /*
 Plugin Name: Automatic Alternative Text
 Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
-Version: 1.1.0
+Version: 1.1.1
 Author: Jacob Peattie
 Author URI: https://profiles.wordpress.org/jakept
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: automatic-alternative-text
-*/
+ */
 
 /**
  * Add default settings on activation.
@@ -29,7 +29,7 @@ register_activation_hook( __FILE__, 'aat_activate_plugin' );
  * @return array Modified array of plugin action links.
  */
 function aat_plugin_action_links( $links ) {
-	array_unshift( $links, '<a href="'. admin_url( 'options-media.php' ) .'">' . __( 'Settings', 'automatic-alternative-text' ) . '</a>' );
+	array_unshift( $links, '<a href="' . admin_url( 'options-media.php' ) . '">' . __( 'Settings', 'automatic-alternative-text' ) . '</a>' );
 
 	return $links;
 }
@@ -47,7 +47,7 @@ function aat_admin_notices() {
 	 * 2. The user cannot save settings.
 	 * 3. The notice has been dismissed.
 	 */
-	if  ( get_option( 'aat_api_key' ) || ! current_user_can( 'manage_options' ) || get_option( 'aat_api_notice_dismissed' ) ) {
+	if ( get_option( 'aat_api_key' ) || ! current_user_can( 'manage_options' ) || get_option( 'aat_api_notice_dismissed' ) ) {
 		return false;
 	}
 	?>
@@ -84,8 +84,8 @@ add_action( 'wp_ajax_aat_dismiss_api_notice', 'aat_dismiss_api_notice' );
  */
 function aat_register_settings() {
 	add_settings_section( 'eat-settings', __( 'Automatic Alternative Text', 'automatic-alternative-text' ), 'aat_settings_section', 'media' );
-	register_setting ( 'media', 'aat_endpoint', 'sanitize_text_field' );
-    add_settings_field( 'eat-endpoint', __('Endpoint URL', 'automatic-alternative-text'), 'aat_endpoint_field', 'media', 'eat-settings', array( 'label_for'=> 'aat_endpoint' ) );
+	register_setting( 'media', 'aat_endpoint', 'sanitize_text_field' );
+	add_settings_field( 'eat-endpoint', __( 'Endpoint URL', 'automatic-alternative-text' ), 'aat_endpoint_field', 'media', 'eat-settings', array( 'label_for' => 'aat_endpoint' ) );
 	register_setting( 'media', 'aat_api_key', 'sanitize_text_field' );
 	add_settings_field( 'eat-api-key', __( 'API Key', 'automatic-alternative-text' ), 'aat_api_key_field', 'media', 'eat-settings', array( 'label_for' => 'aat_api_key' ) );
 	register_setting( 'media', 'aat_confidence', 'aat_sanitize_confidence' );
@@ -99,7 +99,7 @@ add_action( 'admin_init', 'aat_register_settings' );
  * @since 1.0
  */
 function aat_settings_section() {
-	_e( 'Automatic Alternative Text is powered by <a href="https://www.microsoft.com/cognitive-services">Microsoft’s Cognitive Services</a>.', 'automatic-alternative-text' );
+	eac_html_e( 'Automatic Alternative Text is powered by <a href="https://www.microsoft.com/cognitive-services">Microsoft’s Cognitive Services</a>.', 'automatic-alternative-text' );
 }
 
 /**
@@ -108,15 +108,15 @@ function aat_settings_section() {
  * @since 1.1
  */
 function aat_endpoint_field() {
-    $option = get_option( 'aat_endpoint' );
-    ?>
+	$option = get_option( 'aat_endpoint' );
+	?>
 
-    <input id="aat_endpoint" class="regular-text" name="aat_endpoint" type="text" value="<?php echo esc_attr( $option ); ?>">
-    <p class="description">
-        <?php _e( 'The API Endpoint URL which can be found <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions" target="_blank">here</a>.', 'automatic-alternative-text' ); ?>
-    </p>
+	<input id="aat_endpoint" class="regular-text" name="aat_endpoint" type="text" value="<?php echo esc_attr( $option ); ?>">
+	<p class="description">
+		<?php esc_html_e( 'The API Endpoint URL which can be found <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions" target="_blank">here</a>.', 'automatic-alternative-text' ); ?>
+	</p>
 
-    <?php
+	<?php
 }
 
 /**
@@ -130,7 +130,7 @@ function aat_api_key_field() {
 
 	<input id="aat_api_key" class="regular-text" name="aat_api_key" type="text" value="<?php echo esc_attr( $option ); ?>">
 	<p class="description">
-		<?php _e( 'Your Computer Vision API key. Sign up for a key <a href="https://www.microsoft.com/cognitive-services/en-us/computer-vision-api" target="_blank">here</a>. Once you\'re signed up you can find your key <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions" target="_blank">here</a>.', 'automatic-alternative-text' ); ?>
+		<?php esc_html_e( 'Your Computer Vision API key. Sign up for a key <a href="https://www.microsoft.com/cognitive-services/en-us/computer-vision-api" target="_blank">here</a>. Once you\'re signed up you can find your key <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions" target="_blank">here</a>.', 'automatic-alternative-text' ); ?>
 	</p>
 
 	<?php
@@ -147,7 +147,7 @@ function aat_confidence_field() {
 
 	<input id="aat_confidence" class="small-text" name="aat_confidence" type="number" value="<?php echo esc_attr( $option ); ?>" min="0" max="100">%
 	<p class="description">
-		<?php _e( 'Only use captions when the API is at least this confident.', 'automatic-alternative-text' ); ?>
+		<?php esc_html_e( 'Only use captions when the API is at least this confident.', 'automatic-alternative-text' ); ?>
 	</p>
 
 	<?php
@@ -162,7 +162,7 @@ function aat_confidence_field() {
  * @return int An integer between 0 and 100.
  */
 function aat_sanitize_confidence( $input ) {
-	return absint( max( min(  $input, 100 ), 0 ) );
+	return absint( max( min( $input, 100 ), 0 ) );
 }
 
 /**
@@ -174,7 +174,7 @@ function aat_sanitize_confidence( $input ) {
  * @param int $attachment_id ID of the attachment to get the caption for.
  * @return bool True on success and false on failure.
  */
-function aat_add_alt_text( $attachment_id  ) {
+function aat_add_alt_text( $attachment_id ) {
 	/* Only attempt to get a caption for supported image formats. */
 	if ( ! in_array( get_post_mime_type( $attachment_id ), array( 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/x-windows-bmp' ) ) ) {
 		return false;
@@ -216,7 +216,7 @@ function aat_get_caption( $attachment_id ) {
 	if ( ! $url ) {
 		return false;
 	}
-
+	/* Fix endpoint to get image descriptions */
 	$endpoint = get_option( 'aat_endpoint' ) . '/describe';
 
 	/* Make API request. */

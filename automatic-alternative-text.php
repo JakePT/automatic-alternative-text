@@ -2,7 +2,7 @@
 /*
 Plugin Name: Automatic Alternative Text
 Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
-Version: 1.0.1
+Version: 1.1.0
 Author: Jacob Peattie
 Author URI: https://profiles.wordpress.org/jakept
 License: GPLv2 or later
@@ -84,6 +84,8 @@ add_action( 'wp_ajax_aat_dismiss_api_notice', 'aat_dismiss_api_notice' );
  */
 function aat_register_settings() {
 	add_settings_section( 'eat-settings', __( 'Automatic Alternative Text', 'automatic-alternative-text' ), 'aat_settings_section', 'media' );
+	register_setting ( 'media', 'aat_endpoint', 'sanitize_text_field' );
+    add_settings_field( 'eat-endpoint', __('Endpoint URL', 'automatic-alternative-text'), 'aat_endpoint_field', 'media', 'eat-settings', array( 'label_for'=> 'aat_endpoint' ) );
 	register_setting( 'media', 'aat_api_key', 'sanitize_text_field' );
 	add_settings_field( 'eat-api-key', __( 'API Key', 'automatic-alternative-text' ), 'aat_api_key_field', 'media', 'eat-settings', array( 'label_for' => 'aat_api_key' ) );
 	register_setting( 'media', 'aat_confidence', 'aat_sanitize_confidence' );
@@ -98,6 +100,23 @@ add_action( 'admin_init', 'aat_register_settings' );
  */
 function aat_settings_section() {
 	_e( 'Automatic Alternative Text is powered by <a href="https://www.microsoft.com/cognitive-services">Microsoft’s Cognitive Services</a>.', 'automatic-alternative-text' );
+}
+
+/**
+ * Field for API Endpoint URL.
+ *
+ * @since 1.1
+ */
+function aat_endpoint_field() {
+    $option = get_option( 'aat_endpoint' );
+    ?>
+
+    <input id="aat_endpoint" class="regular-text" name="aat_endpoint" type="text" value="<?php echo esc_attr( $option ); ?>">
+    <p class="description">
+        <?php _e( 'The API Endpoint URL which can be found <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions" target="_blank">here</a>.', 'automatic-alternative-text' ); ?>
+    </p>
+
+    <?php
 }
 
 /**
@@ -198,8 +217,10 @@ function aat_get_caption( $attachment_id ) {
 		return false;
 	}
 
+	$endpoint = get_option( 'aat_endpoint' ) . '/describe';
+
 	/* Make API request. */
-	$response = wp_remote_post( 'https://api.projectoxford.ai/vision/v1.0/describe', array(
+	$response = wp_remote_post( $endpoint, array(
 		'body'    => '{"url" : "' . $url . '"}',
 		'headers' => array(
 			'Content-Type'              => 'application/json',

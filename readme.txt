@@ -1,11 +1,11 @@
 === Automatic Alternative Text ===
-Contributors: JakePT
+Contributors: JakePT, bwagner182
 Tags: image,images,media,gallery,accessibility,a11y,alt,attribute,alt attribute,alt tag,alt text
 Requires at least: 4.4
-Tested up to: 4.8
+Tested up to: 4.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.0.1
+Stable tag: 1.1.0
 
 Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
 
@@ -23,7 +23,7 @@ The two methods of installing the plugin are:
 Then activate Automatic Alt Text from the Plugins menu.
 
 = Usage =
-Before the plugin will work you need to supply an API key for Microsoft's Cognitive Services Computer Vision API. You can sign up for a free key <a href="https://www.microsoft.com/cognitive-services/en-us/computer-vision-api">here</a>. Once you've signed up your key will be accessible <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions">here</a>. Go to the Settings > Media page to enter the key.
+Before the plugin will work you need to supply an API key for Microsoft's Cognitive Services Computer Vision API. You can sign up for a free key <a href="https://www.microsoft.com/cognitive-services/en-us/computer-vision-api">here</a>. Once you've signed up your key will be accessible <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions">here</a>. Go to the Settings > Media page to enter the key and endpoint from Microsoft.
 
 Once your key is entered any image you upload from that point forward will automatically have its alt text set to a caption supplied by Microsoft's Cognitive Services.
 
@@ -45,6 +45,10 @@ Not yet. I might add this functionality in a future version.
 3. An uploaded image with automatic alt text added.
 
 == Changelog ==
+
+= 1.1.0 =
+* Fix for new API changes
+* Add field for user endpoint url
 
 = 1.0.1 =
 * Fixed typo in settings.

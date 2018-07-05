@@ -1,13 +1,14 @@
 <?php
 /*
-Plugin Name: Automatic Alternative Text
-Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
-Version: 1.1.1
-Author: Jacob Peattie
-Author URI: https://profiles.wordpress.org/jakept
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: automatic-alternative-text
+ * Plugin Name: Automatic Alternative Text
+ * Plugin URL:  https://github.com/JakePT/automatic-alternative-text
+ * Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
+ * Version:     1.1
+ * Author:      Jacob Peattie
+ * Author URI:  https://profiles.wordpress.org/jakept
+ * License:     GPLv2 or later
+ * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: automatic-alternative-text
  */
 
 /**
@@ -29,7 +30,13 @@ register_activation_hook( __FILE__, 'aat_activate_plugin' );
  * @return array Modified array of plugin action links.
  */
 function aat_plugin_action_links( $links ) {
-	array_unshift( $links, '<a href="' . admin_url( 'options-media.php' ) . '">' . __( 'Settings', 'automatic-alternative-text' ) . '</a>' );
+	$link = sprintf(
+		'<a href="%s">%s</a>',
+		esc_url( admin_url( 'options-media.php' ) ),
+		esc_html__( 'Settings', 'automatic-alternative-text' )
+	);
+
+	array_unshift( $links, $link );
 
 	return $links;
 }
@@ -52,11 +59,32 @@ function aat_admin_notices() {
 	}
 	?>
 
-	<div class="eat-api-notice notice notice-warning is-dismissible">
-		<p><?php printf( __( 'Thanks for installing Automatic Alternative Text! To start receiving alt text, enter your API key <a href="%s">here</a>. Don\'t have one yet? Sign up <a href="%s" target="_blank">here</a>.', 'automatic-alternative-text' ), admin_url( 'options-media.php' ), 'https://www.microsoft.com/cognitive-services/en-us/computer-vision-api' ); ?>
+	<div class="aat-api-notice notice notice-warning is-dismissible">
+		<p>
+			<?php
+			printf(
+				esc_html__( 'Thanks for installing Automatic Alternative Text! To start receiving alt text enter your API key and endpoint %1$s.', 'automatic-alternative-text' ),
+				sprintf(
+					'<a href="%1%s">%2$s</a>',
+					esc_url( admin_url( 'options-media.php' ) ),
+					esc_html__( 'here', 'automatic-alternative-text' )
+				)
+			);
+			?>
+
+			<?php
+			printf(
+				esc_html__( 'Don\'t have them yet? Learn how to get them %1$s.', 'automatic-alternative-text' ),
+				sprintf(
+					'<a href="https://www.microsoft.com/cognitive-services/en-us/computer-vision-api" target="_blank">%1$s</a>',
+					esc_html__( 'here', 'automatic-alternative-text' )
+				)
+			);
+			?>
+		</p>
 
 		<script type="text/javascript" >
-			jQuery( '.eat-api-notice' ).on( 'click', '.notice-dismiss', function() {
+			jQuery( '.aat-api-notice' ).on( 'click', '.notice-dismiss', function() {
 				jQuery.post( ajaxurl, { "action": "aat_dismiss_api_notice" } );
 			} );
 		</script>
@@ -83,13 +111,13 @@ add_action( 'wp_ajax_aat_dismiss_api_notice', 'aat_dismiss_api_notice' );
  * @since 1.0
  */
 function aat_register_settings() {
-	add_settings_section( 'eat-settings', __( 'Automatic Alternative Text', 'automatic-alternative-text' ), 'aat_settings_section', 'media' );
+	add_settings_section( 'aat-settings', __( 'Automatic Alternative Text', 'automatic-alternative-text' ), 'aat_settings_section', 'media' );
 	register_setting( 'media', 'aat_endpoint', 'sanitize_text_field' );
-	add_settings_field( 'eat-endpoint', __( 'Endpoint URL', 'automatic-alternative-text' ), 'aat_endpoint_field', 'media', 'eat-settings', array( 'label_for' => 'aat_endpoint' ) );
+	add_settings_field( 'aat-endpoint', __( 'Endpoint URL', 'automatic-alternative-text' ), 'aat_endpoint_field', 'media', 'aat-settings', array( 'label_for' => 'aat_endpoint' ) );
 	register_setting( 'media', 'aat_api_key', 'sanitize_text_field' );
-	add_settings_field( 'eat-api-key', __( 'API Key', 'automatic-alternative-text' ), 'aat_api_key_field', 'media', 'eat-settings', array( 'label_for' => 'aat_api_key' ) );
+	add_settings_field( 'aat-api-key', __( 'API Key', 'automatic-alternative-text' ), 'aat_api_key_field', 'media', 'aat-settings', array( 'label_for' => 'aat_api_key' ) );
 	register_setting( 'media', 'aat_confidence', 'aat_sanitize_confidence' );
-	add_settings_field( 'eat-confidence', __( 'Confidence threshold', 'automatic-alternative-text' ), 'aat_confidence_field', 'media', 'eat-settings', array( 'label_for' => 'aat_confidence' ) );
+	add_settings_field( 'aat-confidence', __( 'Confidence threshold', 'automatic-alternative-text' ), 'aat_confidence_field', 'media', 'aat-settings', array( 'label_for' => 'aat_confidence' ) );
 }
 add_action( 'admin_init', 'aat_register_settings' );
 
@@ -99,7 +127,17 @@ add_action( 'admin_init', 'aat_register_settings' );
  * @since 1.0
  */
 function aat_settings_section() {
-	eac_html_e( 'Automatic Alternative Text is powered by <a href="https://www.microsoft.com/cognitive-services">Microsoft’s Cognitive Services</a>.', 'automatic-alternative-text' );
+	printf(
+		esc_html__( 'Automatic Alternative Text is powered by the Microsoft Azure %1$s. Learn how to obtain your Endpoint URL and API Key %2$s.' ),
+		sprintf(
+			'<a href="https://azure.microsoft.com/en-au/services/cognitive-services/computer-vision/">%1$s</a>',
+			esc_html__( 'Computer Vision API', 'automatic-alternative-text' )
+		),
+		sprintf(
+			'<a href="https://docs.microsoft.com/en-au/azure/cognitive-services/computer-vision/vision-api-how-to-topics/howtosubscribe">%1$s</a>',
+			esc_html__( 'here', 'automatic-alternative-text' )
+		)
+	);
 }
 
 /**
@@ -109,14 +147,11 @@ function aat_settings_section() {
  */
 function aat_endpoint_field() {
 	$option = get_option( 'aat_endpoint' );
-	?>
 
-	<input id="aat_endpoint" class="regular-text" name="aat_endpoint" type="text" value="<?php echo esc_attr( $option ); ?>">
-	<p class="description">
-		<?php esc_html_e( 'The API Endpoint URL which can be found <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions" target="_blank">here</a>.', 'automatic-alternative-text' ); ?>
-	</p>
-
-	<?php
+	printf(
+		'<input id="aat_endpoint" class="regular-text" name="aat_endpoint" type="url" value="%s">',
+		esc_attr( $option )
+	);
 }
 
 /**
@@ -126,14 +161,11 @@ function aat_endpoint_field() {
  */
 function aat_api_key_field() {
 	$option = get_option( 'aat_api_key' );
-	?>
 
-	<input id="aat_api_key" class="regular-text" name="aat_api_key" type="text" value="<?php echo esc_attr( $option ); ?>">
-	<p class="description">
-		<?php esc_html_e( 'Your Computer Vision API key. Sign up for a key <a href="https://www.microsoft.com/cognitive-services/en-us/computer-vision-api" target="_blank">here</a>. Once you\'re signed up you can find your key <a href="https://www.microsoft.com/cognitive-services/en-US/subscriptions" target="_blank">here</a>.', 'automatic-alternative-text' ); ?>
-	</p>
-
-	<?php
+	printf(
+		'<input id="aat_api_key" class="regular-text" name="aat_api_key" type="text" value="%s">',
+		esc_attr( $option )
+	);
 }
 
 /**
@@ -143,14 +175,16 @@ function aat_api_key_field() {
  */
 function aat_confidence_field() {
 	$option = get_option( 'aat_confidence' );
-	?>
 
-	<input id="aat_confidence" class="small-text" name="aat_confidence" type="number" value="<?php echo esc_attr( $option ); ?>" min="0" max="100">%
-	<p class="description">
-		<?php esc_html_e( 'Only use captions when the API is at least this confident.', 'automatic-alternative-text' ); ?>
-	</p>
+	printf(
+		'<input id="aat_confidence" class="small-text" name="aat_confidence" type="number" value="%s" min="0" max="100">%%',
+		esc_attr( $option )
+	);
 
-	<?php
+	printf(
+		'<p class="description">%s</p>',
+		esc_html__( 'Only use captions when the API is at least this confident.', 'automatic-alternative-text' )
+	);
 }
 
 /**
@@ -210,18 +244,26 @@ function aat_get_caption( $attachment_id ) {
 	}
 
 	/* Get the URL for the attachment image. */
-	$url = wp_get_attachment_image_url( $attachment_id, 'large' );
+	$image_url = wp_get_attachment_image_url( $attachment_id, 'large' );
 
 	/* Bail if we don't have a URL. */
-	if ( ! $url ) {
+	if ( ! $image_url ) {
 		return false;
 	}
-	/* Fix endpoint to get image descriptions */
-	$endpoint = get_option( 'aat_endpoint' ) . '/describe';
+
+	/* Get endpoint from settings, use trial URL as default fallback for those without a saved endpoint. */
+	$endpoint = get_option( 'aat_endpoint', 'https://westcentralus.api.cognitive.microsoft.com/vision/v1.0' );
+
+	if ( ! $endpoint ) {
+		return false;
+	}
+
+	/* Escape and add describe endpoint. */
+	$url = esc_url( trailingslashit( $endpoint ) . 'describe' );
 
 	/* Make API request. */
-	$response = wp_remote_post( $endpoint, array(
-		'body'    => '{"url" : "' . $url . '"}',
+	$response = wp_remote_post( $url, array(
+		'body'    => '{"url" : "' . $image_url . '"}',
 		'headers' => array(
 			'Content-Type'              => 'application/json',
 			'Ocp-Apim-Subscription-Key' => $api_key,

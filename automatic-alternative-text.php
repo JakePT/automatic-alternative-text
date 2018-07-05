@@ -3,7 +3,7 @@
  * Plugin Name: Automatic Alternative Text
  * Plugin URL:  https://github.com/JakePT/automatic-alternative-text
  * Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
- * Version:     1.1
+ * Version:     1.1.1
  * Author:      Jacob Peattie
  * Author URI:  https://profiles.wordpress.org/jakept
  * License:     GPLv2 or later
@@ -55,7 +55,7 @@ function aat_admin_notices() {
 	 * 3. The notice has been dismissed.
 	 */
 	if ( get_option( 'aat_api_key' ) || ! current_user_can( 'manage_options' ) || get_option( 'aat_api_notice_dismissed' ) ) {
-		return false;
+		//return false;
 	}
 	?>
 
@@ -65,7 +65,7 @@ function aat_admin_notices() {
 			printf(
 				esc_html__( 'Thanks for installing Automatic Alternative Text! To start receiving alt text enter your API key and endpoint %1$s.', 'automatic-alternative-text' ),
 				sprintf(
-					'<a href="%1%s">%2$s</a>',
+					'<a href="%1$s">%2$s</a>',
 					esc_url( admin_url( 'options-media.php' ) ),
 					esc_html__( 'here', 'automatic-alternative-text' )
 				)

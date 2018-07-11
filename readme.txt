@@ -1,5 +1,5 @@
 === Automatic Alternative Text ===
-Contributors: JakePT, bwagner182
+Contributors: JakePT, bwagdrive
 Tags: image,images,media,gallery,accessibility,a11y,alt,attribute,alt attribute,alt tag,alt text
 Requires at least: 4.4
 Tested up to: 4.9.6

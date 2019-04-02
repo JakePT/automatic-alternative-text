@@ -266,7 +266,7 @@ function aat_get_caption( $attachment_id ) {
 	}
 
 	/* Escape and add describe endpoint. */
-	$url = esc_url( trailingslashit( $endpoint ) . 'describe' );
+	$url = esc_url_raw( trailingslashit( $endpoint ) . 'describe' );
 
 	/* Make API request. */
 	$response = wp_remote_post( $url, array(

@@ -258,6 +258,13 @@ function aat_get_caption( $attachment_id ) {
 		return false;
 	}
 
+	/* Support newer endpoint URLs that are missing the API endpoint. */
+	$has_endpoint = strpos( $endpoint, 'vision/v1.0' );
+
+	if ( $has_endpoint === false ) {
+		$endpoint = trailingslashit( $endpoint ) . 'vision/v1.0';
+	}
+
 	/* Escape and add describe endpoint. */
 	$url = esc_url( trailingslashit( $endpoint ) . 'describe' );
 

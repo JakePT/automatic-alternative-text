@@ -46,6 +46,9 @@ Not yet. I might add this functionality in a future version.
 
 == Changelog ==
 
+= 1.1.3 =
+* Support newer endpoint URLs that are missing the API endpoint, since Azure does not include this in the resource overview anymore.
+
 = 1.1.2 =
 * Fix admin notice appearing even when dismissed.
 

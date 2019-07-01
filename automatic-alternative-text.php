@@ -3,7 +3,7 @@
  * Plugin Name: Automatic Alternative Text
  * Plugin URL:  https://github.com/JakePT/automatic-alternative-text
  * Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
- * Version:     1.1.3
+ * Version:     1.1.4
  * Author:      Jacob Peattie
  * Author URI:  https://profiles.wordpress.org/jakept
  * License:     GPLv2 or later
@@ -238,8 +238,17 @@ add_action( 'add_attachment', 'aat_add_alt_text', 20, 2 );
  * @return string A caption for the attachment. False on failure.
  */
 function aat_get_caption( $attachment_id ) {
+	$confidence = get_option( 'aat_confidence' );
+	$api_key    = get_option( 'aat_api_key' );
+	$endpoint   = get_option( 'aat_endpoint', 'https://westcentralus.api.cognitive.microsoft.com/vision/v1.0' ); // Use trial URL as default fallback for those without a saved endpoint.
+
+	/* Support newer endpoint URLs that are missing the API endpoint. */
+	if ( strpos( $endpoint, 'vision/v1.0' ) === false ) {
+		$endpoint = trailingslashit( $endpoint ) . 'vision/v1.0';
+	}
+
 	/* Bail if we don't have an API key. */
-	if ( ! $api_key = get_option( 'aat_api_key' ) ) {
+	if ( ! $api_key ) {
 		return false;
 	}
 
@@ -249,20 +258,6 @@ function aat_get_caption( $attachment_id ) {
 	/* Bail if we don't have a URL. */
 	if ( ! $image_url ) {
 		return false;
-	}
-
-	/* Get endpoint from settings, use trial URL as default fallback for those without a saved endpoint. */
-	$endpoint = get_option( 'aat_endpoint', 'https://westcentralus.api.cognitive.microsoft.com/vision/v1.0' );
-
-	if ( ! $endpoint ) {
-		return false;
-	}
-
-	/* Support newer endpoint URLs that are missing the API endpoint. */
-	$has_endpoint = strpos( $endpoint, 'vision/v1.0' );
-
-	if ( $has_endpoint === false ) {
-		$endpoint = trailingslashit( $endpoint ) . 'vision/v1.0';
 	}
 
 	/* Escape and add describe endpoint. */
@@ -278,21 +273,30 @@ function aat_get_caption( $attachment_id ) {
 	) );
 
 	/* Bail on non-200 response. */
-	if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
+	$response_code = wp_remote_retrieve_response_code( $response );
+
+	if ( 200 !== $response_code ) {
 		return false;
 	}
 
 	/* Get first caption from response. */
 	$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-	$caption = $response_body['description']['captions'][0] ?: false;
 
-	/* Get confidence threshold as a float. */
-	$confidence = get_option( 'aat_confidence' ) / 100;
-
-	/* Return the caption if valid and meets confidence threshold. */
-	if ( isset( $caption['text'] ) && isset( $caption['confidence'] ) && $caption['confidence'] > $confidence ) {
-		return sanitize_text_field( ucfirst( $caption['text'] ) );
+	if ( isset( $response_body['description']['captions'][0] ) ) {
+		$caption = $response_body['description']['captions'][0];
 	} else {
 		return false;
 	}
+
+	/* Bail on empty caption. */
+	if ( empty( $caption['text'] ) ) {
+		return false;
+	}
+
+	/* Bail on low confidence. */
+	if ( empty( $caption['confidence'] ) || (float) $caption['confidence'] * 100 < $confidence ) {
+		return false;
+	}
+
+	return sanitize_text_field( ucfirst( $caption['text'] ) );
 }

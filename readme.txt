@@ -5,7 +5,7 @@ Requires at least: 4.4
 Tested up to: 5.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Stable tag: 1.1.3
+Stable tag: 1.1.4
 
 Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
 
@@ -45,6 +45,9 @@ Not yet. I might add this functionality in a future version.
 3. An uploaded image with automatic alt text added.
 
 == Changelog ==
+
+= 1.1.4 =
+* Fix an error that would occur if the API returned a 200 response but no captions.
 
 = 1.1.3 =
 * Support newer endpoint URLs that are missing the API endpoint, since Azure does not include this in the resource overview anymore.

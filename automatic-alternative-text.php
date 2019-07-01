@@ -3,7 +3,7 @@
  * Plugin Name: Automatic Alternative Text
  * Plugin URL:  https://github.com/JakePT/automatic-alternative-text
  * Description: Automatically generate alt text for images with Microsoft's Cognitive Services Computer Vision API.
- * Version:     1.1.4
+ * Version:     1.2.0
  * Author:      Jacob Peattie
  * Author URI:  https://profiles.wordpress.org/jakept
  * License:     GPLv2 or later
@@ -300,3 +300,90 @@ function aat_get_caption( $attachment_id ) {
 
 	return sanitize_text_field( ucfirst( $caption['text'] ) );
 }
+
+/**
+ * Enqueue media library scripts and styles.
+ *
+ * @since 1.2.0
+ * @return void
+ */
+function aat_enqueue_media() {
+	wp_add_inline_style(
+		'media-views',
+		'.wp-core-ui .button.button-aat-describe {
+			display: block;
+			margin-top: 0.5em;
+			margin-bottom: 0.5em;
+		}'
+	);
+
+	wp_enqueue_script(
+		'aat-media-views',
+		plugins_url( 'js/media-views.js', __FILE__ ),
+		[ 'wp-api-request', 'jquery', 'media-views' ],
+		'1.2.0',
+		true
+	);
+
+	wp_register_script(
+		'aat-media-grid',
+		plugins_url( 'js/media-grid.js', __FILE__ ),
+		[ 'aat-media-views', 'media-grid' ],
+		'1.2.0',
+		true
+	);
+
+	if ( is_admin() ) {
+		$screen = get_current_screen();
+
+		if ( 'upload' === $screen->id ) {
+			wp_enqueue_script( 'aat-media-grid' );
+		}
+	}
+}
+add_action( 'wp_enqueue_media', 'aat_enqueue_media' );
+
+/**
+ * Print media library template for the describe button in attachment details.
+ *
+ * @since 1.2.0
+ * @return void
+ */
+function aat_print_media_templates() {
+	?>
+
+	<script type="text/html" id="tmpl-aat-describe-button">
+		<button class="button button-aat-describe">
+			<?php esc_html_e( 'Describe with A.I.', 'automatic-alternative-text' ); ?>
+		</button>
+	</script>
+
+	<?php
+}
+add_action( 'print_media_templates', 'aat_print_media_templates' );
+
+/**
+ * Register REST route for the media library button.
+ *
+ * @since 1.2.0
+ * @return void
+ */
+function aat_register_rest_routes() {
+	register_rest_route(
+		'aat/v1',
+		'/describe/(?P<id>\d+)',
+		[
+			'methods'             => 'GET',
+			'permission_callback' => function( WP_Rest_Request $request ) {
+				return current_user_can( 'edit_post', $request->get_param( 'id' ) );
+			},
+			'callback'            => function( WP_Rest_Request $request ) {
+				$attachment_id = $request->get_param( 'id' );
+				$caption       = aat_get_caption( $attachment_id );
+
+				wp_send_json_success( $caption );
+			},
+		]
+	);
+}
+add_action( 'rest_api_init', 'aat_register_rest_routes' );
